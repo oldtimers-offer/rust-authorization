@@ -1,0 +1,6 @@
+[default.databases]
+my_pg_db_name = { url = "postgres://postgres:123456789@localhost/db_name" }
+
+
+[release.databases]
+my_pg_db_name = { url = "postgres://postgres:123456789@localhost/db_name" }
