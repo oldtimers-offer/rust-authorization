@@ -1,20 +1,19 @@
 use crate::schema::*;
-use rocket::serde::{Deserialize, Serialize};
-use rocket_db_pools::diesel::Insertable;
-use uuid::Uuid;
+use diesel::Insertable;
+use diesel::Queryable;
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Queryable, Serialize, Deserialize)]
 pub struct User {
-    pub id: Uuid,
+    #[serde(skip_deserializing)]
+    pub id: i32,
     pub username: String,
-    pub password: String,
-    pub role: String,
+    pub password_hash: String,
 }
 
 #[derive(Insertable, Deserialize)]
-#[diesel(table_name=users)]
+#[diesel(table_name = users)]
 pub struct NewUser {
     pub username: String,
-    pub password: String,
-    pub role: String,
+    pub password_hash: String,
 }
