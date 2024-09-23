@@ -3,7 +3,10 @@ mod auth;
 mod models;
 mod repo;
 mod schema;
+mod token;
 
+use crate::repo::TokenResponse;
+use crate::token::AuthenticatedUser;
 use api::{server_error, DbConn};
 use auth::{hash_password, verify_password};
 use models::NewUser;
@@ -14,7 +17,7 @@ use rocket::response::status::Custom;
 use rocket::serde::json::Json;
 use rocket::serde::json::{json, Value};
 use rocket::serde::Deserialize;
-use rocket::{launch, post, routes};
+use rocket::{get, launch, post, routes};
 use rocket::{Build, Rocket};
 use rocket_db_pools::Connection;
 use rocket_db_pools::Database;
@@ -52,13 +55,18 @@ pub struct LoginInput {
 async fn login(
     mut conn: Connection<DbConn>,
     login: Json<LoginInput>,
-) -> Result<&'static str, status::Custom<&'static str>> {
+) -> Result<Json<TokenResponse>, status::Custom<&'static str>> {
     UserRepo::login(&mut conn, login).await
+}
+
+#[get("/protected")]
+pub fn protected_route(_user: AuthenticatedUser) -> &'static str {
+    "This is a protected route!"
 }
 
 #[launch]
 fn rocket() -> Rocket<Build> {
     rocket::build()
         .attach(DbConn::init())
-        .mount("/", routes![register, login])
+        .mount("/", routes![register, login, protected_route])
 }
